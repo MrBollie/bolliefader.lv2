@@ -1,0 +1,14 @@
+@prefix modgui: <http://moddevices.com/ns/modgui#> .
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+
+<https://ca9.eu/lv2/bolliefader>
+    modgui:gui [
+        modgui:resourcesDirectory <modgui> ;
+        modgui:iconTemplate <modgui/bolliefader.html> ;
+        modgui:stylesheet <modgui/bolliefader.css> ;
+        modgui:javascript <modgui/bolliefader.js> ;
+        modgui:screenshot <modgui/screenshot-bolliefader.png> ;
+        modgui:thumbnail <modgui/thumbnail-bolliefader.png> ;
+        modgui:brand "Bollie" ;
+        modgui:label "Fader" ;
+    ] .

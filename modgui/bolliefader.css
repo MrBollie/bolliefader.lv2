@@ -1,0 +1,57 @@
+    .mod-bolliefader {
+        background: url(/resources/background-bolliefader.png{{{ns}}}) no-repeat;
+        background-image:url(/resources/background-bolliefader.png{{{ns}}});
+        background-position:center center;
+        background-repeat:no-repeat;
+        background-size:120px 384px;
+        height:392px;
+        width:120px;
+        position:relative;
+    }
+    .mod-bolliefader .mod-drag-handle {
+        bottom:0;
+        left:0;
+        position:absolute;
+        right:0;
+        top:0;
+        z-index: 0;
+    }
+    .mod-bolliefader .mod-control-group-1 {
+        position: absolute;
+        z-index: 2;
+        top: 43px;
+        left: 16px;
+    }
+    .mod-bolliefader .mod-control-group-1 .mod-slider {
+        position: absolute;
+        z-index: 100;
+        width: 70px;
+        height: 315px;
+    }
+    .mod-bolliefader .mod-control-group-1 .mod-slider .mod-slider-image {
+        background: url(/resources/slider-bolliefader.png{{{ns}}}) no-repeat;
+	background-position: right;
+        width: 70px;
+        height: 315px;
+    }
+    .mod-bolliefader .toggle {
+        background: url(/resources/switch-key.png{{{ns}}}) no-repeat;
+        width: 30px;
+        height: 73px;
+        position: absolute;
+        top: 10px;
+        left: 53px;
+        z-index: 2;
+        cursor: pointer;
+    }
+    .mod-bolliefader .toggle.off {
+        background-position: center bottom
+    }
+    .mod-bolliefader .mod-light {
+        height: 32px;
+        width: 32px;
+        position: absolute;
+        bottom: 45px;
+        left: 260px;
+        z-index: 2;
+    }
