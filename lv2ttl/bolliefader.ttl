@@ -40,7 +40,6 @@
         lv2:default 0.000 ;
         lv2:minimum -192.000 ;
         lv2:maximum 6.000 ;
-    lv2:portProperty pprop:logarithmic ;
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
