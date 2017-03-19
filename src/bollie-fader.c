@@ -46,7 +46,9 @@ typedef enum {
     BGA_INPUT_L     = 2,
     BGA_INPUT_R     = 3,
     BGA_OUTPUT_L    = 4,
-    BGA_OUTPUT_R    = 5
+    BGA_OUTPUT_R    = 5,
+    BGA_CTL_DB_L    = 6,
+    BGA_CTL_DB_R    = 7
 } PortIdx;
 
 /**
@@ -59,8 +61,14 @@ typedef struct {
     const float* in_right;      ///< input1, right side
     float* out_left;            ///< output1, left side
     float* out_right;           ///< output2, right side
+    float* ctl_db_l;            ///< control output of the current level
+    float* ctl_db_r;            ///< control output of the current level
     int sample_rate;            ///< current sample rate
-    float cur_volume            ///< state variable for current volume
+    float cur_volume;           ///< state variable for current volume
+    float max_lvl_l;
+    float max_lvl_r;
+    double sample_cnt;
+    double sample_interval;
 } BollieFader;
 
 
@@ -76,6 +84,8 @@ static LV2_Handle instantiate(const LV2_Descriptor * descriptor, double rate,
 
     // Memorize sample rate for calculation
     self->sample_rate = rate;
+    // Every 1/10 seconds update for level meter
+    self->sample_interval = rate * 0.1;
 
     return (LV2_Handle)self;
 }
@@ -109,6 +119,12 @@ static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
         case BGA_OUTPUT_R:
             self->out_right = data;
             break;
+        case BGA_CTL_DB_L:
+            self->ctl_db_l = data;
+            break;
+        case BGA_CTL_DB_R:
+            self->ctl_db_r = data;
+            break;
     }
 }
     
@@ -120,6 +136,9 @@ static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
 static void activate(LV2_Handle instance) {
     BollieFader* self = (BollieFader*)instance;
     self->cur_volume = 0;
+    self->max_lvl_l = 0;
+    self->max_lvl_r = 0;
+    self->sample_cnt = 0;
 }
 
 
@@ -139,10 +158,15 @@ static void run(LV2_Handle instance, uint32_t n_samples) {
     if (mute != 0) {
         target_vol = 0;
     }
-    else if (v <= 0 || v >= -192) {
-        target_vol = pow(10, (v/20));
+    else if (v < -90) {
+        target_vol = 0;
+    }
+    else if (v <= 12) {
+        target_vol = powf(10, (v/20));
     }
 
+    float max_l = self->max_lvl_l;
+    float max_r = self->max_lvl_r;
     // Loop over the block of audio we got
     for (unsigned int i = 0 ; i < n_samples ; ++i) {
         // Paraemter smoothing for volume
@@ -150,7 +174,20 @@ static void run(LV2_Handle instance, uint32_t n_samples) {
 
         // Will it blend? ;)
         self->out_left[i] = self->in_left[i] * cur_vol;
+        max_l = self->out_left[i] > max_l ? self->out_left[i] : max_l;
         self->out_right[i] = self->in_right[i] * cur_vol;
+        max_r = self->out_right[i] > max_r ? self->out_right[i] : max_r;
+    }
+    self->max_lvl_l = max_l;
+    self->max_lvl_r = max_r;
+    self->sample_cnt += n_samples;
+
+    if (self->sample_cnt > self->sample_interval) {
+        *self->ctl_db_l = 20 * log(max_l);
+        *self->ctl_db_r = 20 * log(max_r);
+        self->sample_cnt = 0;
+        self->max_lvl_l = 0;
+        self->max_lvl_r = 0;
     }
     self->cur_volume = cur_vol;
 }
